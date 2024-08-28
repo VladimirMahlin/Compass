@@ -1,84 +1,220 @@
-# First-Time Installation
+Before setup - change the password in the following files to your MySQL password:
+- /model/transfer-from-csv-to-mysql.py
+- /model/app.py
+- /backend/.env
 
-Before installing change the MySQL password in the those files to your MySQL password.
-- Compass/model/transfer-from-csv-to-mysql.py
-- Compass/backend/.env
-- Compass/model/app.py
+### **Windows Setup Instructions**
 
-1. **Set up a virtual environment (venv):**
+#### Step 1: Set Up the Virtual Environment
+1. Move to the `model` directory:
+   ```bash
+   cd model
+   ```
+
+1. Create a virtual environment:
    ```bash
    python -m venv venv
    ```
-
-2. **Activate the virtual environment:**
-    - On Mac:
-      ```bash
-      source ./venv/bin/activate
-      ```
-    - On Windows:
-      ```bash
-      venv\Scripts\activate
-      ```
-
-3. **Install the required libraries:**
+2. Activate the virtual environment:
    ```bash
-   pip install -r requirements.txt
+   venv\Scripts\activate
    ```
 
-4. **Run the model:**
-   ```bash
-   python model.py
-   ```
-   or
-   ```bash
-   python3 model.py
-   ```
-   if the previous command doesn't work.
+#### Step 2: Install Dependencies
+With the virtual environment activated, install the required Python packages:
 
-5. **During the setup process, you will be asked the following questions:**
-    1. Windows or Mac?
-    2. Enter your MySQL host (e.g., `localhost`): `localhost`
-    3. Enter your MySQL username: *Your local MySQL database login*
-    4. Enter your MySQL password: *Your local MySQL database password*
+```bash
+pip install -r requirements.txt
+```
 
-6. **After this, the server will start automatically.**
+#### Step 3: Create the MySQL Database
+1. Open another terminal.
+2. Open your MySQL:
+```bash
+mysql -u root -p
+```
 
-7. **In another terminal:**
+3. Create the `compass` database:
+
+```sql
+CREATE DATABASE compass;
+```
+
+4. Create the `users` table:
+
+```sql
+USE compass;
+```
+
+```sql
+CREATE TABLE IF NOT EXISTS users (
+                                    id INT AUTO_INCREMENT PRIMARY KEY,
+                                    email VARCHAR(100) NOT NULL UNIQUE,
+   password VARCHAR(255) NOT NULL,
+   name VARCHAR(100),
+   bio TEXT,
+   avatar VARCHAR(255),
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+   );
+```
+
+5. Close this terminal.
+
+#### Step 4: Run the Data Transfer Script
+Ensure the virtual environment is activated, then run the data transfer script:
+
+```bash
+python transfer-from-csv-to-mysql.py
+```
+
+#### Step 5: Start the Flask Application
+With everything set up, start your Flask application:
+
+```bash
+set FLASK_APP=app.py
+flask run --host=0.0.0.0 --port=3002
+```
+
+#### Step 6: Start the Backend Server
+1. Open another terminal.
+2. Move to the `backend` directory:
    ```bash
    cd backend
-   npm i
-   node app
    ```
 
-8. **In yet another terminal:**
+3. Install the required Node.js packages:
+   ```bash
+    npm install
+    ```
+
+4. Start the backend server:
+    ```bash
+    node app
+    ```
+
+#### Step 7: Start the Frontend Server
+1. Open another terminal.
+2. Move to the `frontend` directory:
    ```bash
    cd frontend
-   npm i
-   npm start
    ```
 
-# Starting the Project
-
-1. **In the `model` folder:**
-    - On Windows:
-      ```bash
-      venv\Scripts\activate
-      set FLASK_APP=app.py
-      flask run --host=0.0.0.0 --port=3002
-      ```
-    - On Mac:
-      ```bash
-      source ./venv/bin/activate
-      export FLASK_APP=app.py
-      flask run --host=0.0.0.0 --port=3002
-      ```
-
-2. **In the `backend` folder:**
+3. Install the required Node.js packages:
    ```bash
-   node app
+    npm install
+    ```
+
+4. Start the frontend server:
+    ```bash
+    npm start
+    ```
+
+---
+
+### **Mac Setup Instructions**
+
+#### Step 1: Set Up the Virtual Environment
+1. Move to the `model` directory:
+   ```bash
+   cd model
    ```
 
-3. **In the `frontend` folder:**
+1. Create a virtual environment:
    ```bash
-   npm start
+   python -m venv venv
    ```
+2. Activate the virtual environment:
+   ```bash
+    source venv/bin/activate
+   ```
+
+#### Step 2: Install Dependencies
+With the virtual environment activated, install the required Python packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+#### Step 3: Create the MySQL Database
+1. Open another terminal.
+2. Open your MySQL:
+```bash
+mysql -u root -p
+```
+
+3. Create the `compass` database:
+
+```sql
+CREATE DATABASE compass;
+```
+
+4. Create the `users` table:
+
+```sql
+USE compass;
+```
+
+```sql
+CREATE TABLE IF NOT EXISTS users (
+                                    id INT AUTO_INCREMENT PRIMARY KEY,
+                                    email VARCHAR(100) NOT NULL UNIQUE,
+   password VARCHAR(255) NOT NULL,
+   name VARCHAR(100),
+   bio TEXT,
+   avatar VARCHAR(255),
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+   );
+```
+
+5. Close this terminal.
+
+#### Step 4: Run the Data Transfer Script
+Ensure the virtual environment is activated, then run the data transfer script:
+
+```bash
+python transfer-from-csv-to-mysql.py
+```
+
+#### Step 5: Start the Flask Application
+With everything set up, start your Flask application:
+
+```bash
+export FLASK_APP=app.py
+flask run --host=0.0.0.0 --port=3002
+```
+
+#### Step 6: Start the Backend Server
+1. Open another terminal.
+2. Move to the `backend` directory:
+   ```bash
+   cd backend
+   ```
+
+3. Install the required Node.js packages:
+   ```bash
+    npm install
+    ```
+
+4. Start the backend server:
+    ```bash
+    node app
+    ```
+
+#### Step 7: Start the Frontend Server
+1. Open another terminal.
+2. Move to the `frontend` directory:
+   ```bash
+   cd frontend
+   ```
+
+3. Install the required Node.js packages:
+   ```bash
+    npm install
+    ```
+
+4. Start the frontend server:
+    ```bash
+    npm start
+    ```
