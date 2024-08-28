@@ -6,7 +6,7 @@ from mysql.connector import Error
 
 def run_command(command, cwd=None):
     """Run a command in the terminal."""
-    result = subprocess.run(command, cwd=cwd, shell=True)
+    result = subprocess.run(command, cwd=cwd, shell=True, executable='/bin/bash')
     if result.returncode != 0:
         print(f"Command failed: {command}")
         sys.exit(1)
@@ -63,21 +63,18 @@ def create_users_table(host, user, password, database_name):
         sys.exit(1)
 
 def setup_model(os_type, mysql_host, mysql_user, mysql_password):
-    # Step 1: Set the repository directory
-    repo_dir = "Compass"
+    # Step 1: Set the model directory
+    model_dir = os.path.join(os.getcwd(), 'model')
 
-    if not os.path.exists(repo_dir):
-        print(f"Directory '{repo_dir}' does not exist. Ensure the repository is already cloned.")
+    if not os.path.exists(model_dir):
+        print(f"Directory '{model_dir}' does not exist.")
         sys.exit(1)
-
-    os.chdir(repo_dir)
 
     # Step 2: Create the MySQL database
     database_name = "compass"
     create_database(mysql_host, mysql_user, mysql_password, database_name)
 
     # Step 3: Setup Model environment
-    model_dir = os.path.join(os.getcwd(), 'model')
     venv_path = os.path.join(model_dir, 'venv')
     if not os.path.exists(venv_path):
         if os_type == "Windows":

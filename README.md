@@ -45,14 +45,14 @@ Before installing change the MySQL password in the those files to your MySQL pas
 
 7. **In another terminal:**
    ```bash
-   cd compass/backend
+   cd backend
    npm i
    node app
    ```
 
 8. **In yet another terminal:**
    ```bash
-   cd compass/frontend
+   cd frontend
    npm i
    npm start
    ```
