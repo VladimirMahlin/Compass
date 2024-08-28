@@ -85,7 +85,30 @@ set FLASK_APP=app.py
 flask run --host=0.0.0.0 --port=3002
 ```
 
-#### Step 6: Start the Backend Server
+#### Step 6: MongoDB Setup
+1. Open another terminal.
+2. Open your MongoDB:
+
+```bash
+cd "C:\Program Files\MongoDB\Server\7.0\bin"
+```
+
+```bash
+mongod
+```
+
+3. If error:
+```bash
+md \data\db
+```
+
+```bash
+mongod
+```
+
+Leave this terminal open.
+
+#### Step 7: Start the Backend Server
 1. Open another terminal.
 2. Move to the `backend` directory:
    ```bash
@@ -102,7 +125,7 @@ flask run --host=0.0.0.0 --port=3002
     node app
     ```
 
-#### Step 7: Start the Frontend Server
+#### Step 8: Start the Frontend Server
 1. Open another terminal.
 2. Move to the `frontend` directory:
    ```bash
