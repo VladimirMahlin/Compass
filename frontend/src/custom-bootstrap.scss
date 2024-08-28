@@ -1,0 +1,125 @@
+$primary: #9c3636;
+$secondary: #755309;
+$info: #3f7cac;
+$success: #3c9d5a;
+$warning: #d4a017;
+$danger: #d9534f;
+$light: #f8f9fa;
+$dark: #343a40;
+
+@import '~bootstrap/scss/bootstrap';
+
+body {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  background-color: $light;
+  color: $dark;
+  line-height: 1.6;
+}
+
+h1, .h1 {
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: $primary;
+}
+
+h2, .h2 {
+  font-size: 2.4rem;
+  font-weight: 500;
+  color: $secondary;
+}
+
+h3, .h3 {
+  font-size: 2rem;
+  font-weight: 500;
+  color: $info;
+}
+
+.btn-primary {
+  background-color: $primary;
+  border-color: $primary;
+  &:hover {
+    background-color: darken($primary, 10%);
+    border-color: darken($primary, 10%);
+  }
+}
+
+.btn-secondary {
+  background-color: $secondary;
+  border-color: $secondary;
+  &:hover {
+    background-color: darken($secondary, 10%);
+    border-color: darken($secondary, 10%);
+  }
+}
+
+.btn-info {
+  background-color: $info;
+  border-color: $info;
+  &:hover {
+    background-color: darken($info, 10%);
+    border-color: darken($info, 10%);
+  }
+}
+
+.btn-success {
+  background-color: $success;
+  border-color: $success;
+  &:hover {
+    background-color: darken($success, 10%);
+    border-color: darken($success, 10%);
+  }
+}
+
+.btn-warning {
+  background-color: $warning;
+  border-color: $warning;
+  &:hover {
+    background-color: darken($warning, 10%);
+    border-color: darken($warning, 10%);
+  }
+}
+
+.btn-danger {
+  background-color: $danger;
+  border-color: $danger;
+  &:hover {
+    background-color: darken($danger, 10%);
+    border-color: darken($danger, 10%);
+  }
+}
+
+a {
+  color: $primary;
+  &:hover {
+    color: darken($primary, 15%);
+    text-decoration: none;
+  }
+}
+
+.navbar {
+  background-color: $primary;
+  .navbar-brand {
+    font-size: 1.5rem;
+    color: #fff;
+    &:hover {
+      color: lighten($primary, 10%);
+    }
+  }
+  .nav-link {
+    color: #fff;
+    &:hover {
+      color: lighten($primary, 20%);
+    }
+  }
+}
+
+.card {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+  &:hover {
+    transform: translateY(-0.5rem);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+}
