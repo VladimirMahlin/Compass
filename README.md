@@ -3,6 +3,10 @@ Before setup - change the password in the following files to your MySQL password
 - /model/app.py
 - /backend/.env
 
+Requirements:
+- Local MySQL server
+- Local MongoDB server
+
 ### **Windows Setup Instructions**
 
 #### Step 1: Set Up the Virtual Environment
@@ -30,8 +34,13 @@ pip install -r requirements.txt
 #### Step 3: Create the MySQL Database
 1. Open another terminal.
 2. Open your MySQL:
+
 ```bash
-mysql -u root -p
+cd "C:\Program Files\MySQL\MySQL Server 8.0\bin"
+```
+
+```bash
+.\mysql -u root -p
 ```
 
 3. Create the `compass` database:
