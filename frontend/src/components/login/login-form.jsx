@@ -53,7 +53,7 @@ const LoginForm = () => {
           <Card className="border-0 shadow-lg">
             <Card.Body className="p-5">
               <h2 className="text-center mb-4 font-weight-bold">
-                Welcome Back
+                Welcome!
               </h2>
               {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
               <Form onSubmit={handleLogin}>
