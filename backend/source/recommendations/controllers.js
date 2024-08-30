@@ -3,7 +3,7 @@ const axios = require("axios");
 const { mySqlPromiseConfig } = require("../../_config/mySqlConfig");
 const { Types } = require("mongoose");
 
-const RECOMMENDATION_SERVICE_URL = "http://localhost:3002";
+const RECOMMENDATION_SERVICE_URL = "http://127.0.0.1:3002";
 
 exports.createRecommendation = async (req, res) => {
   const { user_id, book_titles, exclude_same_author } = req.body;
