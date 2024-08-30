@@ -85,7 +85,7 @@ set FLASK_APP=app.py
 flask run --host=0.0.0.0 --port=3002
 ```
 
-#### Step 6: MongoDB Setup
+#### Step 6: MongoDB Setup (if it's not already running on port 27017)
 1. Open another terminal.
 2. Open your MongoDB:
 
