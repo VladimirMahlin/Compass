@@ -22,10 +22,10 @@ function FavoriteBooks({ userId }) {
         if (response.ok) {
           setFavorites(data);
         } else {
-          setError("Failed to fetch favorite books.");
+          console.error("Failed to fetch favorite books.");
         }
       } catch (error) {
-        setError("An error occurred while fetching favorite books.");
+        console.error("An error occurred while fetching favorite books.");
       } finally {
         setLoading(false);
       }
@@ -42,36 +42,38 @@ function FavoriteBooks({ userId }) {
   }
 
   return (
-    <div className="mb-5">
-      <h2 className="text-center mb-4">Favorite Books</h2>
-      <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+      <div className="mb-5">
+        <h2 className="text-center mb-4">Favorite Books</h2>
+
         {favorites.length === 0 ? (
-          <Col>
-            <p className="text-center">No favorite books yet.</p>
-          </Col>
+            <div className="d-flex justify-content-center align-items-center">
+              <Alert variant="info">No favorite books yet.</Alert>
+            </div>
         ) : (
-          favorites.map((data, index) => (
-            <Col key={index}>
-              <Card className="h-100 shadow-sm hover-shadow">
-                <Link to={`/book/${data.id}`} className="text-decoration-none">
-                  <Card.Img
-                    variant="top"
-                    src={data.cover_link}
-                    alt={data.title}
-                  />
-                  <Card.Body>
-                    <Card.Title className="text-truncate">
-                      {data.title}
-                    </Card.Title>
-                    <Card.Text className="text-muted">{data.author}</Card.Text>
-                  </Card.Body>
-                </Link>
-              </Card>
-            </Col>
-          ))
+            <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+              {favorites.map((data, index) => (
+                  <Col key={index}>
+                    <Card className="h-100 shadow-sm hover-shadow">
+                      <Link to={`/book/${data.id}`} className="text-decoration-none">
+                        <Card.Img
+                            variant="top"
+                            src={data.cover_link}
+                            alt={data.title}
+                        />
+                        <Card.Body>
+                          <Card.Title className="text-truncate">
+                            {data.title}
+                          </Card.Title>
+                          <Card.Text className="text-muted">{data.author}</Card.Text>
+                        </Card.Body>
+                      </Link>
+                    </Card>
+                  </Col>
+              ))}
+            </Row>
         )}
-      </Row>
-    </div>
+      </div>
+
   );
 }
 

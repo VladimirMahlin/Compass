@@ -78,27 +78,28 @@ const Reviews = ({ user }) => {
   if (loading) return <Loading />;
 
   return (
-    <div className="mb-5">
-      <h2 className="text-center mb-4">User Reviews</h2>
-      <Row xs={1} md={2} lg={3} className="g-4">
-        {reviews.length > 0 ? (
-          reviews.map((review, index) => (
-            <Col key={index}>
-              <Postcard
-                review={review}
-                showUserInfo={true}
-                onDelete={handleDelete}
-                onEdit={handleEdit}
-              />
-            </Col>
-          ))
+      <div className="mb-5">
+        <h2 className="text-center mb-4">User Reviews</h2>
+
+        {reviews.length === 0 ? (
+            <div className="d-flex justify-content-center align-items-center mb-4">
+              <Alert variant="info">No reviews available.</Alert>
+            </div>
         ) : (
-          <Col xs={12}>
-            <Alert variant="info">No reviews available.</Alert>
-          </Col>
+            <Row xs={1} md={2} lg={3} className="g-4">
+              {reviews.map((review, index) => (
+                  <Col key={index}>
+                    <Postcard
+                        review={review}
+                        showUserInfo={true}
+                        onDelete={handleDelete}
+                        onEdit={handleEdit}
+                    />
+                  </Col>
+              ))}
+            </Row>
         )}
-      </Row>
-    </div>
+      </div>
   );
 };
 

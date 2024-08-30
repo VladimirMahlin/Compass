@@ -6,7 +6,7 @@ gen
 /backend/node_modules/
 /frontend/node_modules/
 
-/backend/model_v2/venv/
-
 /backend/package-lock.json
 /frontend/package-lock.json
+
+/model/venv/

@@ -89,35 +89,30 @@ const BlogReviews = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <Container className="py-5">
-      <h2 className="text-center mb-5">All User Reviews</h2>
-      {error && (
-        <Alert variant="danger" className="mt-3">
-          {error}
-        </Alert>
-      )}
-      <Row xs={1} md={2} lg={3} className="g-4">
-        {reviews.length > 0 ? (
-          reviews.map((review, index) => (
-            <Col key={index} className="mb-4">
-              <Postcard
-                review={review}
-                showUserInfo={true}
-                onDelete={handleDelete}
-                onEdit={handleEdit}
-              />
-            </Col>
-          ))
-        ) : !error ? (
-          <Col xs={12}>
-            <Alert variant="info" className="mt-3 p-4">
-              No reviews available.
-            </Alert>
-          </Col>
-        ) : null}
-      </Row>
-    </Container>
+      <Container className="py-5">
+        <h2 className="text-center mb-5">All User Reviews</h2>
+
+        {reviews.length === 0 ? (
+            <div className="d-flex justify-content-center align-items-center mb-4">
+              <Alert variant="info">No reviews available.</Alert>
+            </div>
+        ) : (
+            <Row xs={1} md={2} lg={3} className="g-4">
+              {reviews.map((review, index) => (
+                  <Col key={index}>
+                    <Postcard
+                        review={review}
+                        showUserInfo={true}
+                        onDelete={handleDelete}
+                        onEdit={handleEdit}
+                    />
+                  </Col>
+              ))}
+            </Row>
+        )}
+      </Container>
   );
+
 };
 
 export default BlogReviews;

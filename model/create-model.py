@@ -60,7 +60,7 @@ if df is not None:
     genre_vectors = genre_vectors / (genre_vectors.sum(axis=1)[:, np.newaxis] + 1e-10)
 
     # Train the model
-    n_clusters = 28  # Set number of clusters to 28
+    n_clusters = 28
     kmeans = KMeans(n_clusters=n_clusters, random_state=42)
     df['cluster'] = kmeans.fit_predict(genre_vectors)
 
