@@ -30,7 +30,6 @@ def ensure_books_table_exists():
 
         if not table_exists:
             print("Creating 'books' table...")
-            # Create table with all columns, using TEXT for potentially long string fields
             create_table_query = """
             CREATE TABLE books (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -79,7 +78,7 @@ def ensure_books_table_exists():
             # Convert date_published to datetime
             df['date_published'] = pd.to_datetime(df['date_published'], errors='coerce')
 
-            # Replace NaN values with None (NULL in SQL)
+            # Replace NaN values with None
             df = df.where(pd.notnull(df), None)
 
             # Truncate string columns to prevent data too long errors
@@ -91,7 +90,7 @@ def ensure_books_table_exists():
             columns = df.columns.tolist()
 
             # Insert data into the table in chunks
-            chunk_size = 1000  # Adjust this value based on your max_allowed_packet setting
+            chunk_size = 1000
             for i in range(0, len(df), chunk_size):
                 chunk = df.iloc[i:i + chunk_size]
                 values = [tuple(None if pd.isna(x) else x for x in row) for row in chunk.values]
@@ -112,5 +111,4 @@ def ensure_books_table_exists():
             cursor.close()
             conn.close()
 
-# Ensure the table exists and data is loaded
 ensure_books_table_exists()
