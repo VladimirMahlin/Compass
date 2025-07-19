@@ -1,6 +1,6 @@
-const Recommendation = require("./models");
+const Recommendation = require("../models/recommendationModels");
 const axios = require("axios");
-const { mySqlPromiseConfig } = require("../../_config/mySqlConfig");
+const { mySqlPromiseConfig } = require("../_config/mySqlConfig");
 const { Types } = require("mongoose");
 
 const RECOMMENDATION_SERVICE_URL = "http://127.0.0.1:3002";

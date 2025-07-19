@@ -1,6 +1,6 @@
-const { mySqlPromiseConfig } = require("../../_config/mySqlConfig");
-const Favorite = require("./models");
-const Post = require("../posts/models");
+const { mySqlPromiseConfig } = require("../_config/mySqlConfig");
+const Favorite = require("../models/bookModels");
+const Post = require("../models/postModels");
 
 exports.getAllBooks = async (req, res, next) => {
   try {

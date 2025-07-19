@@ -2,14 +2,14 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
-const { createSession } = require("./source/users/middlewares");
+const { createSession } = require("./middlewares/session");
 const connectDB = require("./_config/mongoConfig");
-const errorHandler = require("./source/middlewares/errorHandler");
+const errorHandler = require("./middlewares/errorHandler");
 
-const userRoutes = require("./source/users/routes");
-const postRoutes = require("./source/posts/routes");
-const bookRoutes = require("./source/books/routes");
-const recommendationRoutes = require("./source/recommendations/routes");
+const userRoutes = require("./routes/userRoutes");
+const postRoutes = require("./routes/postRoutes");
+const bookRoutes = require("./routes/bookRoutes");
+const recommendationRoutes = require("./routes/recommendationRoutes");
 
 const swaggerDocs = require("./swagger");
 

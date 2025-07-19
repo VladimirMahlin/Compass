@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const { mySqlPromiseConfig } = require("../../_config/mySqlConfig");
+const { mySqlPromiseConfig } = require("../_config/mySqlConfig");
 
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS);
 

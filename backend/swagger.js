@@ -96,10 +96,10 @@ const swaggerDefinition = {
 const options = {
   swaggerDefinition,
   apis: [
-    "./source/books/routes.js",
-    "./source/posts/routes.js",
-    "./source/users/routes.js",
-    "./source/recommendations/routes.js",
+    "./routes/bookRoutes.js",
+    "./routes/postRoutes.js",
+    "./routes/userRoutes.js",
+    "./routes/recommendationRoutes.js",
   ],
 };
 
