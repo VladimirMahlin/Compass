@@ -5,7 +5,8 @@ const { Types } = require("mongoose");
 
 const RECOMMENDATION_SERVICE_URL = "http://127.0.0.1:3002";
 
-exports.createRecommendation = async (req, res) => {
+exports.createRecommendation = async (req, res, next) => {
+  // Added 'next'
   const { user_id, book_titles, exclude_same_author } = req.body;
 
   if (
@@ -42,7 +43,6 @@ exports.createRecommendation = async (req, res) => {
 
     await newRecommendation.save();
 
-    // Fetch details for recommended books
     const recommendedBooksQuery =
       "SELECT id, title, author, average_rating, rating_count FROM books WHERE id IN (?)";
     const [recommendedBooks] = await mySqlPromiseConfig.query(
@@ -57,14 +57,11 @@ exports.createRecommendation = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in createRecommendation:", error);
-    res.status(500).json({
-      message: "Error in recommendation process",
-      error: error.toString(),
-    });
+    next(error);
   }
 };
 
-exports.getRecommendationsBySubGenre = async (req, res) => {
+exports.getRecommendationsBySubGenre = async (req, res, next) => {
   const { user_id, sub_genre } = req.body;
 
   if (!sub_genre) {
@@ -103,14 +100,11 @@ exports.getRecommendationsBySubGenre = async (req, res) => {
       recommendations: recommendedBooks,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Error fetching sub-genre recommendations",
-      error: error.toString(),
-    });
+    next(error);
   }
 };
 
-exports.getRecommendationsById = async (req, res) => {
+exports.getRecommendationsById = async (req, res, next) => {
   const { user_id } = req.params;
 
   if (isNaN(user_id)) {
@@ -144,11 +138,11 @@ exports.getRecommendationsById = async (req, res) => {
 
     res.status(200).json(recommendationsWithDetails);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching recommendations", error });
+    next(error);
   }
 };
 
-exports.deleteRecommendation = async (req, res) => {
+exports.deleteRecommendation = async (req, res, next) => {
   const { id } = req.params;
 
   if (!Types.ObjectId.isValid(id)) {
@@ -166,6 +160,6 @@ exports.deleteRecommendation = async (req, res) => {
 
     res.status(200).json({ message: "Recommendation deleted." });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting recommendation", error });
+    next(error);
   }
 };

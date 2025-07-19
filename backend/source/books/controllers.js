@@ -2,17 +2,17 @@ const { mySqlPromiseConfig } = require("../../_config/mySqlConfig");
 const Favorite = require("./models");
 const Post = require("../posts/models");
 
-exports.getAllBooks = async (req, res) => {
+exports.getAllBooks = async (req, res, next) => {
   try {
     const [rows] = await mySqlPromiseConfig.query("SELECT * FROM books");
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Server error during books retrieval");
+    next(err);
   }
 };
 
-exports.getBookById = async (req, res) => {
+exports.getBookById = async (req, res, next) => {
   const { id } = req.params;
   try {
     const [rows] = await mySqlPromiseConfig.query(
@@ -25,11 +25,11 @@ exports.getBookById = async (req, res) => {
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Server error during book retrieval");
+    next(err);
   }
 };
 
-exports.getUserFavoriteBooks = async (req, res) => {
+exports.getUserFavoriteBooks = async (req, res, next) => {
   const userId = parseInt(req.params.userId, 10);
 
   try {
@@ -47,11 +47,11 @@ exports.getUserFavoriteBooks = async (req, res) => {
     res.json(books);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    next(error);
   }
 };
 
-exports.getBookWithReviews = async (req, res) => {
+exports.getBookWithReviews = async (req, res, next) => {
   const { id } = req.params;
   const userId = req.session.userId;
 
@@ -72,11 +72,11 @@ exports.getBookWithReviews = async (req, res) => {
     res.json({ book, reviews, userReview });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Server error during book and reviews retrieval");
+    next(err);
   }
 };
 
-exports.getBooks = async (req, res) => {
+exports.getBooks = async (req, res, next) => {
   const { ids } = req.query;
   const bookIds = ids.split(",").map((id) => parseInt(id, 10));
 
@@ -88,11 +88,11 @@ exports.getBooks = async (req, res) => {
     res.json(books);
   } catch (error) {
     console.error("Error fetching book details:", error);
-    res.status(500).json({ message: "Error fetching book details", error });
+    next(error);
   }
 };
 
-exports.addFavorite = async (req, res) => {
+exports.addFavorite = async (req, res, next) => {
   const { book_id, user_id } = req.body;
 
   try {
@@ -101,11 +101,11 @@ exports.addFavorite = async (req, res) => {
     res.json(favorite);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    next(error);
   }
 };
 
-exports.removeFavorite = async (req, res) => {
+exports.removeFavorite = async (req, res, next) => {
   const { book_id, user_id } = req.body;
 
   try {
@@ -117,11 +117,11 @@ exports.removeFavorite = async (req, res) => {
     res.json({ message: "Favorite removed successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    next(error);
   }
 };
 
-exports.checkFavorite = async (req, res) => {
+exports.checkFavorite = async (req, res, next) => {
   const { book_id, user_id } = req.body;
 
   try {
@@ -129,6 +129,6 @@ exports.checkFavorite = async (req, res) => {
     res.json({ isFavorite: !!favorite });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    next(error);
   }
 };

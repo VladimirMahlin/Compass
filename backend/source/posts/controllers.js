@@ -1,6 +1,6 @@
 const Post = require("./models");
 
-exports.createPost = async (req, res) => {
+exports.createPost = async (req, res, next) => {
   const { title, content, user_id, book_id } = req.body;
 
   try {
@@ -14,11 +14,12 @@ exports.createPost = async (req, res) => {
     await newPost.save();
     res.status(201).json(newPost);
   } catch (error) {
-    res.status(500).json({ message: "Error creating post", error });
+    next(error);
   }
 };
 
-exports.updatePost = async (req, res) => {
+exports.updatePost = async (req, res, next) => {
+  // Added 'next'
   const { id } = req.params;
   const { title, content } = req.body;
 
@@ -38,11 +39,11 @@ exports.updatePost = async (req, res) => {
     await post.save();
     res.json(post);
   } catch (error) {
-    res.status(500).json({ message: "Error updating post", error });
+    next(error);
   }
 };
 
-exports.deletePost = async (req, res) => {
+exports.deletePost = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -54,20 +55,20 @@ exports.deletePost = async (req, res) => {
     await post.deleteOne();
     res.json({ message: "Post deleted" });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting post", error });
+    next(error);
   }
 };
 
-exports.getAllPosts = async (req, res) => {
+exports.getAllPosts = async (req, res, next) => {
   try {
     const posts = await Post.find();
     res.json(posts);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching posts", error });
+    next(error);
   }
 };
 
-exports.getPostsById = async (req, res) => {
+exports.getPostsById = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -77,11 +78,11 @@ exports.getPostsById = async (req, res) => {
     }
     res.json(post);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching post", error });
+    next(error);
   }
 };
 
-exports.getPostsByBookId = async (req, res) => {
+exports.getPostsByBookId = async (req, res, next) => {
   try {
     const { book_id } = req.params;
 
@@ -90,17 +91,17 @@ exports.getPostsByBookId = async (req, res) => {
     res.status(200).json(posts);
   } catch (error) {
     console.error("Error fetching posts by book id:", error.message);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    next(error);
   }
 };
 
-exports.getPostsByUserId = async (req, res) => {
+exports.getPostsByUserId = async (req, res, next) => {
   try {
     const userId = req.params.user_id;
     const posts = await Post.find({ user_id: userId });
     res.status(200).json(posts);
   } catch (error) {
     console.error("Error fetching posts by user id:", error);
-    res.status(500).json({ message: "Error fetching posts" });
+    next(error);
   }
 };

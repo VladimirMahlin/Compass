@@ -38,12 +38,7 @@ const validatePassword = (password) => {
   };
 };
 
-const handleServerError = (res, error, operation) => {
-  console.error(`Error during ${operation}:`, error);
-  return res.status(500).json({ message: `Server error during ${operation}` });
-};
-
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -77,7 +72,7 @@ exports.register = async (req, res) => {
           if (err.code === "ER_DUP_ENTRY") {
             return res.status(409).json({ message: "Email already exists" });
           }
-          return handleServerError(res, err, "registration");
+          return next(err);
         }
         return res
           .status(201)
@@ -85,11 +80,11 @@ exports.register = async (req, res) => {
       },
     );
   } catch (error) {
-    return handleServerError(res, error, "registration");
+    return next(error);
   }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -104,7 +99,7 @@ exports.login = async (req, res) => {
       [email],
       async (err, results) => {
         if (err) {
-          return handleServerError(res, err, "login");
+          return next(err);
         }
 
         if (results.length === 0) {
@@ -126,37 +121,37 @@ exports.login = async (req, res) => {
       },
     );
   } catch (error) {
-    return handleServerError(res, error, "login");
+    return next(error);
   }
 };
 
-exports.logout = (req, res) => {
+exports.logout = (req, res, next) => {
   req.session.destroy((err) => {
     if (err) {
-      return handleServerError(res, err, "logout");
+      return next(err);
     }
     res.clearCookie("connect.sid");
     return res.status(200).json({ message: "Logout successful" });
   });
 };
 
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res, next) => {
   try {
     db.query(
       "SELECT id, email, created_at, name, bio FROM users",
       (err, results) => {
         if (err) {
-          return handleServerError(res, err, "fetching users");
+          return next(err);
         }
         return res.status(200).json(results);
       },
     );
   } catch (error) {
-    return handleServerError(res, error, "fetching users");
+    return next(error);
   }
 };
 
-exports.getUserById = async (req, res) => {
+exports.getUserById = async (req, res, next) => {
   const { userId } = req.params;
 
   if (!userId) {
@@ -169,7 +164,7 @@ exports.getUserById = async (req, res) => {
       [userId],
       (err, results) => {
         if (err) {
-          return handleServerError(res, err, "fetching user");
+          return next(err);
         }
         if (results.length === 0) {
           return res.status(404).json({ message: "User not found" });
@@ -178,11 +173,11 @@ exports.getUserById = async (req, res) => {
       },
     );
   } catch (error) {
-    return handleServerError(res, error, "fetching user");
+    return next(error);
   }
 };
 
-exports.updateUser = async (req, res) => {
+exports.updateUser = async (req, res, next) => {
   const { name, bio, avatar } = req.body;
   const { userId } = req.params;
 
@@ -200,7 +195,7 @@ exports.updateUser = async (req, res) => {
       [name, bio, avatar, userId],
       (err, result) => {
         if (err) {
-          return handleServerError(res, err, "updating user");
+          return next(err);
         }
         if (result.affectedRows === 0) {
           return res.status(404).json({ message: "User not found" });
@@ -209,11 +204,11 @@ exports.updateUser = async (req, res) => {
       },
     );
   } catch (error) {
-    return handleServerError(res, error, "updating user");
+    return next(error);
   }
 };
 
-exports.checkSession = async (req, res) => {
+exports.checkSession = async (req, res, next) => {
   if (req.session.userId) {
     try {
       db.execute(
@@ -221,7 +216,7 @@ exports.checkSession = async (req, res) => {
         [req.session.userId],
         (err, results) => {
           if (err) {
-            return handleServerError(res, err, "checking session");
+            return next(err);
           }
           if (results.length === 0) {
             return res
@@ -243,7 +238,7 @@ exports.checkSession = async (req, res) => {
         },
       );
     } catch (error) {
-      return handleServerError(res, error, "checking session");
+      return next(error);
     }
   } else {
     return res.status(200).json({ isLoggedIn: false });

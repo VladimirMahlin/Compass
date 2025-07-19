@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const { createSession } = require("./source/users/middlewares");
 const connectDB = require("./_config/mongoConfig");
+const errorHandler = require("./source/middlewares/errorHandler");
 
 const userRoutes = require("./source/users/routes");
 const postRoutes = require("./source/posts/routes");
@@ -36,6 +37,7 @@ app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/books", bookRoutes);
 
 app.use("/docs", swaggerDocs.serve, swaggerDocs.setup);
+app.use(errorHandler);
 
 console.log("--------------------");
 app.listen(PORT, () => {
