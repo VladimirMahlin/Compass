@@ -1,11 +1,9 @@
-const { mySqlPromiseConfig } = require("../_config/mySqlConfig");
-const Favorite = require("../models/bookModels");
-const Post = require("../models/postModels");
+const bookService = require("../services/bookService");
 
 exports.getAllBooks = async (req, res, next) => {
   try {
-    const [rows] = await mySqlPromiseConfig.query("SELECT * FROM books");
-    res.json(rows);
+    const books = await bookService.getAllBooks();
+    res.json(books);
   } catch (err) {
     console.error(err);
     next(err);
@@ -15,14 +13,11 @@ exports.getAllBooks = async (req, res, next) => {
 exports.getBookById = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const [rows] = await mySqlPromiseConfig.query(
-      "SELECT * FROM books WHERE id = ?",
-      [id],
-    );
-    if (rows.length === 0) {
+    const book = await bookService.getBookById(id);
+    if (!book) {
       return res.status(404).send("Book not found");
     }
-    res.json(rows[0]);
+    res.json(book);
   } catch (err) {
     console.error(err);
     next(err);
@@ -33,17 +28,12 @@ exports.getUserFavoriteBooks = async (req, res, next) => {
   const userId = parseInt(req.params.userId, 10);
 
   try {
-    const favorites = await Favorite.find({ user_id: userId });
-    if (favorites.length === 0) {
+    const books = await bookService.getUserFavoriteBooks(userId);
+    if (!books) {
       return res
         .status(404)
         .json({ message: "No favorites found for this user." });
     }
-    const bookIds = favorites.map((fav) => fav.book_id);
-    const [books] = await mySqlPromiseConfig.query(
-      "SELECT * FROM books WHERE id IN (?)",
-      [bookIds],
-    );
     res.json(books);
   } catch (error) {
     console.error(error);
@@ -56,20 +46,11 @@ exports.getBookWithReviews = async (req, res, next) => {
   const userId = req.session.userId;
 
   try {
-    const [bookRows] = await mySqlPromiseConfig.query(
-      "SELECT * FROM books WHERE id = ?",
-      [id],
-    );
-    if (bookRows.length === 0) {
+    const result = await bookService.getBookWithReviews(id, userId);
+    if (!result) {
       return res.status(404).send("Book not found");
     }
-    const book = bookRows[0];
-
-    const reviews = await Post.find({ book_id: id });
-
-    const userReview = reviews.find((review) => review.user_id === userId);
-
-    res.json({ book, reviews, userReview });
+    res.json(result);
   } catch (err) {
     console.error(err);
     next(err);
@@ -78,16 +59,18 @@ exports.getBookWithReviews = async (req, res, next) => {
 
 exports.getBooks = async (req, res, next) => {
   const { ids } = req.query;
-  const bookIds = ids.split(",").map((id) => parseInt(id, 10));
+  if (!ids) {
+    return res.status(400).json({ message: "Book IDs are required." });
+  }
 
   try {
-    const [books] = await mySqlPromiseConfig.query(
-      "SELECT id, title, cover_link FROM books WHERE id IN (?)",
-      [bookIds],
-    );
+    const books = await bookService.getBooksByIds(ids);
     res.json(books);
   } catch (error) {
     console.error("Error fetching book details:", error);
+    if (error.message === "Invalid book ID format in query.") {
+      return res.status(400).json({ message: error.message });
+    }
     next(error);
   }
 };
@@ -96,8 +79,7 @@ exports.addFavorite = async (req, res, next) => {
   const { book_id, user_id } = req.body;
 
   try {
-    const favorite = new Favorite({ book_id, user_id });
-    await favorite.save();
+    const favorite = await bookService.addFavorite(book_id, user_id);
     res.json(favorite);
   } catch (error) {
     console.error(error);
@@ -109,12 +91,11 @@ exports.removeFavorite = async (req, res, next) => {
   const { book_id, user_id } = req.body;
 
   try {
-    const favorite = await Favorite.findOne({ book_id, user_id });
-    if (!favorite) {
+    const message = await bookService.removeFavorite(book_id, user_id);
+    if (!message) {
       return res.status(404).json({ message: "Favorite not found" });
     }
-    await Favorite.deleteOne({ book_id, user_id });
-    res.json({ message: "Favorite removed successfully" });
+    res.json({ message: message });
   } catch (error) {
     console.error(error);
     next(error);
@@ -125,8 +106,8 @@ exports.checkFavorite = async (req, res, next) => {
   const { book_id, user_id } = req.body;
 
   try {
-    const favorite = await Favorite.findOne({ book_id, user_id });
-    res.json({ isFavorite: !!favorite });
+    const isFavorite = await bookService.checkFavorite(book_id, user_id);
+    res.json({ isFavorite: isFavorite });
   } catch (error) {
     console.error(error);
     next(error);

@@ -1,12 +1,6 @@
-const Recommendation = require("../models/recommendationModels");
-const axios = require("axios");
-const { mySqlPromiseConfig } = require("../_config/mySqlConfig");
-const { Types } = require("mongoose");
-
-const RECOMMENDATION_SERVICE_URL = "http://127.0.0.1:3002";
+const recommendationService = require("../services/recommendationService");
 
 exports.createRecommendation = async (req, res, next) => {
-  // Added 'next'
   const { user_id, book_titles, exclude_same_author } = req.body;
 
   if (
@@ -20,41 +14,12 @@ exports.createRecommendation = async (req, res, next) => {
   }
 
   try {
-    const response = await axios.post(
-      `${RECOMMENDATION_SERVICE_URL}/recommend-similar-books`,
-      {
-        book_titles,
-        exclude_same_author,
-      },
-    );
-
-    const recommendedBookIds = response.data;
-
-    const query = "SELECT id FROM books WHERE title IN (?)";
-    const [rows] = await mySqlPromiseConfig.query(query, [book_titles]);
-    const inputBookIds = rows.map((row) => row.id);
-
-    const newRecommendation = new Recommendation({
+    const recommendationData = await recommendationService.createRecommendation(
       user_id,
-      input_book_ids: inputBookIds,
-      output_book_ids: recommendedBookIds,
-      created_at: new Date(),
-    });
-
-    await newRecommendation.save();
-
-    const recommendedBooksQuery =
-      "SELECT id, title, author, average_rating, rating_count FROM books WHERE id IN (?)";
-    const [recommendedBooks] = await mySqlPromiseConfig.query(
-      recommendedBooksQuery,
-      [recommendedBookIds],
+      book_titles,
+      exclude_same_author,
     );
-
-    res.status(201).json({
-      user_id,
-      input_book_ids: inputBookIds,
-      recommendations: recommendedBooks,
-    });
+    res.status(201).json(recommendationData);
   } catch (error) {
     console.error("Error in createRecommendation:", error);
     next(error);
@@ -69,37 +34,14 @@ exports.getRecommendationsBySubGenre = async (req, res, next) => {
   }
 
   try {
-    const response = await axios.post(
-      `${RECOMMENDATION_SERVICE_URL}/recommend-books-by-sub-genre`,
-      {
+    const recommendationData =
+      await recommendationService.getRecommendationsBySubGenre(
+        user_id,
         sub_genre,
-      },
-    );
-
-    const recommendedBookIds = response.data;
-
-    const newRecommendation = new Recommendation({
-      user_id,
-      input_sub_genre: sub_genre,
-      output_book_ids: recommendedBookIds,
-      created_at: new Date(),
-    });
-
-    await newRecommendation.save();
-
-    const recommendedBooksQuery =
-      "SELECT id, title, author, average_rating, rating_count FROM books WHERE id IN (?)";
-    const [recommendedBooks] = await mySqlPromiseConfig.query(
-      recommendedBooksQuery,
-      [recommendedBookIds],
-    );
-
-    res.status(201).json({
-      user_id,
-      input_sub_genre: sub_genre,
-      recommendations: recommendedBooks,
-    });
+      );
+    res.status(201).json(recommendationData);
   } catch (error) {
+    console.error("Error in getRecommendationsBySubGenre:", error);
     next(error);
   }
 };
@@ -107,37 +49,27 @@ exports.getRecommendationsBySubGenre = async (req, res, next) => {
 exports.getRecommendationsById = async (req, res, next) => {
   const { user_id } = req.params;
 
-  if (isNaN(user_id)) {
+  const parsedUserId = parseInt(user_id, 10);
+
+  if (isNaN(parsedUserId)) {
     return res
       .status(400)
       .json({ message: "Invalid user_id format. Must be an integer." });
   }
 
   try {
-    const recommendations = await Recommendation.find({
-      user_id: parseInt(user_id, 10),
-    });
+    const recommendationsWithDetails =
+      await recommendationService.getRecommendationsById(parsedUserId);
 
-    if (recommendations.length === 0) {
+    if (!recommendationsWithDetails) {
       return res
         .status(404)
         .json({ message: "No recommendations found for this user." });
     }
 
-    const bookIds = recommendations.flatMap((rec) => rec.output_book_ids);
-
-    const [books] = await mySqlPromiseConfig.query(
-      "SELECT id, title, cover_link FROM books WHERE id IN (?)",
-      [bookIds],
-    );
-
-    const recommendationsWithDetails = recommendations.map((rec) => ({
-      ...rec.toObject(),
-      books: books.filter((book) => rec.output_book_ids.includes(book.id)),
-    }));
-
     res.status(200).json(recommendationsWithDetails);
   } catch (error) {
+    console.error("Error in getRecommendationsById:", error);
     next(error);
   }
 };
@@ -145,14 +77,8 @@ exports.getRecommendationsById = async (req, res, next) => {
 exports.deleteRecommendation = async (req, res, next) => {
   const { id } = req.params;
 
-  if (!Types.ObjectId.isValid(id)) {
-    return res
-      .status(400)
-      .json({ message: "Invalid recommendation ID format." });
-  }
-
   try {
-    const recommendation = await Recommendation.findByIdAndDelete(id);
+    const recommendation = await recommendationService.deleteRecommendation(id);
 
     if (!recommendation) {
       return res.status(404).json({ message: "Recommendation not found." });
@@ -160,6 +86,10 @@ exports.deleteRecommendation = async (req, res, next) => {
 
     res.status(200).json({ message: "Recommendation deleted." });
   } catch (error) {
+    console.error("Error in deleteRecommendation:", error);
+    if (error.message === "Invalid recommendation ID format.") {
+      return res.status(400).json({ message: error.message });
+    }
     next(error);
   }
 };
