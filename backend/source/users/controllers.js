@@ -1,7 +1,5 @@
 const bcrypt = require("bcrypt");
-const { mySqlConfig } = require("../../_config/mySqlConfig");
-const db = mySqlConfig;
-require("dotenv").config();
+const { mySqlPromiseConfig } = require("../../_config/mySqlConfig");
 
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS);
 
@@ -64,22 +62,15 @@ exports.register = async (req, res, next) => {
   try {
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    db.execute(
+    const [result] = await mySqlPromiseConfig.execute(
       "INSERT INTO users (email, password, name, bio) VALUES (?, ?, ?, ?)",
       [email, hashedPassword, "John Doe", "John Doe is a mysterious person."],
-      (err) => {
-        if (err) {
-          if (err.code === "ER_DUP_ENTRY") {
-            return res.status(409).json({ message: "Email already exists" });
-          }
-          return next(err);
-        }
-        return res
-          .status(201)
-          .json({ message: "User registered successfully" });
-      },
     );
+    return res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ message: "Email already exists" });
+    }
     return next(error);
   }
 };
@@ -94,32 +85,27 @@ exports.login = async (req, res, next) => {
   }
 
   try {
-    db.execute(
+    const [results] = await mySqlPromiseConfig.execute(
       "SELECT * FROM users WHERE email = ?",
       [email],
-      async (err, results) => {
-        if (err) {
-          return next(err);
-        }
-
-        if (results.length === 0) {
-          return res.status(401).json({ message: "Invalid email or password" });
-        }
-
-        const user = results[0];
-        const passwordMatch = await bcrypt.compare(password, user.password);
-
-        if (passwordMatch) {
-          req.session.userId = user.id;
-          return res.status(200).json({
-            message: "Authentication successful",
-            user: { id: user.id, email: user.email, name: user.name },
-          });
-        } else {
-          return res.status(401).json({ message: "Invalid email or password" });
-        }
-      },
     );
+
+    if (results.length === 0) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const user = results[0];
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (passwordMatch) {
+      req.session.userId = user.id;
+      return res.status(200).json({
+        message: "Authentication successful",
+        user: { id: user.id, email: user.email, name: user.name },
+      });
+    } else {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
   } catch (error) {
     return next(error);
   }
@@ -137,15 +123,10 @@ exports.logout = (req, res, next) => {
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    db.query(
+    const [results] = await mySqlPromiseConfig.query(
       "SELECT id, email, created_at, name, bio FROM users",
-      (err, results) => {
-        if (err) {
-          return next(err);
-        }
-        return res.status(200).json(results);
-      },
     );
+    return res.status(200).json(results);
   } catch (error) {
     return next(error);
   }
@@ -159,19 +140,14 @@ exports.getUserById = async (req, res, next) => {
   }
 
   try {
-    db.execute(
+    const [results] = await mySqlPromiseConfig.execute(
       "SELECT id, email, created_at, name, bio, avatar FROM users WHERE id = ?",
       [userId],
-      (err, results) => {
-        if (err) {
-          return next(err);
-        }
-        if (results.length === 0) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        return res.status(200).json(results[0]);
-      },
     );
+    if (results.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json(results[0]);
   } catch (error) {
     return next(error);
   }
@@ -190,19 +166,14 @@ exports.updateUser = async (req, res, next) => {
   }
 
   try {
-    db.execute(
+    const [result] = await mySqlPromiseConfig.execute(
       "UPDATE users SET name = ?, bio = ?, avatar = ? WHERE id = ?",
       [name, bio, avatar, userId],
-      (err, result) => {
-        if (err) {
-          return next(err);
-        }
-        if (result.affectedRows === 0) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        return res.status(200).json({ message: "User updated successfully" });
-      },
     );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json({ message: "User updated successfully" });
   } catch (error) {
     return next(error);
   }
@@ -211,32 +182,27 @@ exports.updateUser = async (req, res, next) => {
 exports.checkSession = async (req, res, next) => {
   if (req.session.userId) {
     try {
-      db.execute(
+      const [results] = await mySqlPromiseConfig.execute(
         "SELECT id, email, name, bio, avatar, created_at FROM users WHERE id = ?",
         [req.session.userId],
-        (err, results) => {
-          if (err) {
-            return next(err);
-          }
-          if (results.length === 0) {
-            return res
-              .status(404)
-              .json({ isLoggedIn: false, message: "User not found" });
-          }
-          const user = results[0];
-          return res.status(200).json({
-            isLoggedIn: true,
-            user: {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              bio: user.bio,
-              avatar: user.avatar,
-              created_at: user.created_at,
-            },
-          });
-        },
       );
+      if (results.length === 0) {
+        return res
+          .status(404)
+          .json({ isLoggedIn: false, message: "User not found" });
+      }
+      const user = results[0];
+      return res.status(200).json({
+        isLoggedIn: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          bio: user.bio,
+          avatar: user.avatar,
+          created_at: user.created_at,
+        },
+      });
     } catch (error) {
       return next(error);
     }

@@ -1,6 +1,6 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
 
 const { createSession } = require("./source/users/middlewares");
 const connectDB = require("./_config/mongoConfig");
