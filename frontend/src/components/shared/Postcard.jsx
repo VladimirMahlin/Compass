@@ -3,6 +3,7 @@ import { Card, Modal, Button, Form, Image, Alert } from "react-bootstrap";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
+import { fetchData } from "../../utils/api";
 
 const Postcard = ({ review, showUserInfo = true, onDelete, onEdit }) => {
   const { user: currentUser } = useContext(AuthContext);
@@ -17,13 +18,10 @@ const Postcard = ({ review, showUserInfo = true, onDelete, onEdit }) => {
   useEffect(() => {
     const fetchBookDetails = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3001/api/books/${review.book_id}`,
-        );
-        const data = await response.json();
+        const data = await fetchData(`books/${review.book_id}`);
         setBook(data.book);
       } catch (error) {
-        console.error("Error fetching book details:", error);
+        console.error("Error fetching book details:", error.message);
       }
     };
 
@@ -46,7 +44,6 @@ const Postcard = ({ review, showUserInfo = true, onDelete, onEdit }) => {
     try {
       await onDelete(review._id);
       handleClose();
-      window.location.reload();
     } catch (error) {
       setError(`Error deleting review: ${error.message}`);
     }
@@ -60,7 +57,6 @@ const Postcard = ({ review, showUserInfo = true, onDelete, onEdit }) => {
     try {
       await onEdit(review._id, { title, content });
       handleClose();
-      window.location.reload();
     } catch (error) {
       setError(`Error updating review: ${error.message}`);
     }
@@ -141,6 +137,7 @@ const Postcard = ({ review, showUserInfo = true, onDelete, onEdit }) => {
               </div>
             </div>
           )}
+          {error && <Alert variant="danger">{error}</Alert>}
         </Card.Body>
       </Card>
 
@@ -191,7 +188,6 @@ const Postcard = ({ review, showUserInfo = true, onDelete, onEdit }) => {
           ) : (
             <p>{review.content || "No content available"}</p>
           )}
-          {/* Display book details in the modal */}
           {book && (
             <div className="mt-4">
               <div className="d-flex align-items-center mb-2">

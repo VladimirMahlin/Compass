@@ -11,7 +11,7 @@ const Reviews = ({ user }) => {
     const fetchReviews = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/posts/user/${user.id}`,
+          `${process.env.REACT_APP_API_BASE_URL}/posts/user/${user.id}`,
           {
             credentials: "include",
           },
@@ -40,7 +40,7 @@ const Reviews = ({ user }) => {
   const handleDelete = async (reviewId) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/posts/${reviewId}`,
+        `${process.env.REACT_APP_API_BASE_URL}/posts/${reviewId}`,
         { method: "DELETE", credentials: "include" },
       );
 
@@ -55,7 +55,7 @@ const Reviews = ({ user }) => {
   const handleEdit = async (reviewId, updatedData) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/posts/${reviewId}`,
+        `${process.env.REACT_APP_API_BASE_URL}/posts/${reviewId}`, //TODO refactor review fetching
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -78,28 +78,28 @@ const Reviews = ({ user }) => {
   if (loading) return <Loading />;
 
   return (
-      <div className="mb-5">
-        <h2 className="text-center mb-4">User Reviews</h2>
+    <div className="mb-5">
+      <h2 className="text-center mb-4">User Reviews</h2>
 
-        {reviews.length === 0 ? (
-            <div className="d-flex justify-content-center align-items-center mb-4">
-              <Alert variant="info">No reviews available.</Alert>
-            </div>
-        ) : (
-            <Row xs={1} md={2} lg={3} className="g-4">
-              {reviews.map((review, index) => (
-                  <Col key={index}>
-                    <Postcard
-                        review={review}
-                        showUserInfo={true}
-                        onDelete={handleDelete}
-                        onEdit={handleEdit}
-                    />
-                  </Col>
-              ))}
-            </Row>
-        )}
-      </div>
+      {reviews.length === 0 ? (
+        <div className="d-flex justify-content-center align-items-center mb-4">
+          <Alert variant="info">No reviews available.</Alert>
+        </div>
+      ) : (
+        <Row xs={1} md={2} lg={3} className="g-4">
+          {reviews.map((review, index) => (
+            <Col key={index}>
+              <Postcard
+                review={review}
+                showUserInfo={true}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
+              />
+            </Col>
+          ))}
+        </Row>
+      )}
+    </div>
   );
 };
 

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Navbar, Nav, Button } from "react-bootstrap";
 import { FaBook, FaSignOutAlt, FaUser, FaCompass } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
+import { fetchData } from "../../utils/api";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -10,14 +11,13 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:3001/api/users/logout", {
+      await fetchData("users/logout", {
         method: "POST",
-        credentials: "include",
       });
       setUser(null);
       navigate("/");
     } catch (error) {
-      console.error("Error logging out:", error);
+      console.error("Error logging out:", error.message);
     }
   };
 

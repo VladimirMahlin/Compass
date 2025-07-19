@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Image, Button } from "react-bootstrap";
 import LoadingSpinner from "../shared/Loading";
 import ErrorComponent from "../shared/Error";
+import { fetchData } from "../../utils/api";
 
 function BookInformation({ book, userId }) {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -11,25 +12,13 @@ function BookInformation({ book, userId }) {
   useEffect(() => {
     const checkIfFavorite = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3001/api/books/favorites/check`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ book_id: book.id, user_id: userId }),
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to check favorite status");
-        }
-
-        const data = await response.json();
+        const data = await fetchData("books/favorites/check", {
+          method: "POST",
+          body: JSON.stringify({ book_id: book.id, user_id: userId }),
+        });
         setIsFavorite(data.isFavorite);
       } catch (error) {
-        console.error("Error checking favorite status:", error);
+        console.error("Error checking favorite status:", error.message);
         setError("Failed to check favorite status");
       } finally {
         setLoading(false);
@@ -45,24 +34,17 @@ function BookInformation({ book, userId }) {
 
   const handleFavoriteToggle = async () => {
     try {
-      const url = `http://localhost:3001/api/books/favorites`;
+      const endpoint = `books/favorites`;
       const method = isFavorite ? "DELETE" : "POST";
 
-      const response = await fetch(url, {
+      await fetchData(endpoint, {
         method: method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ book_id: book.id, user_id: userId }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to update favorite status");
-      }
-
       setIsFavorite(!isFavorite);
     } catch (error) {
-      console.error("Error updating favorite status:", error);
+      console.error("Error updating favorite status:", error.message);
       setError("Failed to update favorite status");
     }
   };

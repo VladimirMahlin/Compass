@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import LoadingSpinner from "../components/shared/Loading";
 import ErrorComponent from "../components/shared/Error";
 import { AuthContext } from "../contexts/AuthContext";
+import { fetchData } from "../utils/api";
 
 const User = () => {
   const navigate = useNavigate();
@@ -27,18 +28,11 @@ const User = () => {
   useEffect(() => {
     const fetchUserData = async (id) => {
       try {
-        const response = await fetch(`http://localhost:3001/api/users/${id}`);
-        const data = await response.json();
-        if (response.ok) {
-          setUserData(data);
-        } else {
-          setError(data.error || "Failed to load user data.");
-          navigate("/login");
-        }
+        const data = await fetchData(`users/${id}`);
+        setUserData(data);
       } catch (error) {
-        console.error("Error fetching user data:", error);
-        setError("An error occurred while fetching user data.");
-        navigate("/login");
+        setError(error.message || "Failed to load user data.");
+        // navigate("/login");
       } finally {
         setLoading(false);
       }

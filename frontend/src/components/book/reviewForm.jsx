@@ -1,6 +1,8 @@
+// src/components/book/reviewForm.jsx
 import React, { useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
 import LoadingSpinner from "../shared/Loading";
+import { fetchData } from "../../utils/api"; // Import fetchData
 
 function ReviewForm({ bookId, userId }) {
   const [review, setReview] = useState({
@@ -25,24 +27,16 @@ function ReviewForm({ bookId, userId }) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
     try {
-      const response = await fetch("http://localhost:3001/api/posts", {
+      await fetchData("posts", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(review),
       });
-      if (response.ok) {
-        setSuccess("Review submitted successfully");
-        setReview({ ...review, title: "", content: "" });
-        window.location.reload();
-      } else {
-        const errorData = await response.json();
-        setError(`Failed to submit review: ${errorData.message}`);
-      }
+      setSuccess("Review submitted successfully");
+      setReview({ ...review, title: "", content: "" });
     } catch (error) {
-      setError(`Error submitting review: ${error.message}`);
+      setError(error.message || "Error submitting review.");
     } finally {
       setLoading(false);
     }

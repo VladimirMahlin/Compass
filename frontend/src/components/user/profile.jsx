@@ -13,6 +13,7 @@ import { FaEdit, FaEnvelope, FaCalendar } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
 import LoadingSpinner from "../shared/Loading";
 import ErrorComponent from "../shared/Error";
+import { fetchData } from "../../utils/api";
 
 const defaultAvatars = [
   "https://compassreads.com/images/avatars/1.png",
@@ -38,21 +39,14 @@ const Profile = ({ userId }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3001/api/users/${userId}`,
-        );
-        const data = await response.json();
-        if (response.ok) {
-          setName(data.name);
-          setBio(data.bio);
-          setAvatar(data.avatar);
-          setCreated_at(data.created_at);
-          setEmail(data.email);
-        } else {
-          setError(data.message || "Failed to fetch user data.");
-        }
+        const data = await fetchData(`users/${userId}`);
+        setName(data.name);
+        setBio(data.bio);
+        setAvatar(data.avatar);
+        setCreated_at(data.created_at);
+        setEmail(data.email);
       } catch (error) {
-        setError("An error occurred while fetching the user data.");
+        setError(error.message || "Failed to fetch user data.");
       } finally {
         setLoading(false);
       }
@@ -69,26 +63,16 @@ const Profile = ({ userId }) => {
   const handleSaveClick = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/users/${userId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ name, bio, avatar }),
-          credentials: "include",
-        },
-      );
-      const result = await response.json();
-      if (response.ok) {
-        setIsEditing(false);
-        setMessage("Profile updated successfully!");
-      } else {
-        setError(result.message || "Failed to update profile.");
-      }
+      const result = await fetchData(`users/${userId}`, {
+        method: "PUT",
+        body: JSON.stringify({ name, bio, avatar }),
+      });
+      setIsEditing(false);
+      setMessage("Profile updated successfully!");
     } catch (error) {
-      setError("An error occurred while updating the profile.");
+      setError(
+        error.message || "An error occurred while updating the profile.",
+      );
     } finally {
       setLoading(false);
     }
@@ -130,10 +114,10 @@ const Profile = ({ userId }) => {
             </Col>
             <Col md={8}>
               <h1 className="mb-3 text-black">{name}</h1>
-              <p className="text-muted mb-4 fs-5">{bio || "No bio provided"}</p>
+              <p className="mb-4 fs-5 text-muted">{bio || "No bio provided"}</p>
               <Row className="mb-3">
                 <Col sm={6}>
-                  <p className="text-muted mb-2">
+                  <p className="mb-2 text-muted">
                     <FaEnvelope className="me-2" /> {email}
                   </p>
                   <p className="text-muted">

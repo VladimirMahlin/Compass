@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const checkSession = useCallback(async (retries = 3) => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/users/checksession",
+        `${process.env.REACT_APP_API_BASE_URL}/users/checksession`,
         {
           withCredentials: true,
         },

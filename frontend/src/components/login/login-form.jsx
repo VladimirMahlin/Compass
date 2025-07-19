@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
+import { fetchData } from "../../utils/api";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -24,25 +25,15 @@ const LoginForm = () => {
     setErrorMessage("");
 
     try {
-      const response = await fetch("http://localhost:3001/api/users/login", {
+      const data = await fetchData("users/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setUser(data.user);
-        navigate(`/user/${data.user.id}`);
-      } else {
-        setErrorMessage(data.message);
-      }
+      setUser(data.user);
+      navigate(`/user/${data.user.id}`);
     } catch (error) {
-      setErrorMessage("An error occurred. Please try again.");
+      setErrorMessage(error.message || "An error occurred. Please try again.");
     }
   };
 
@@ -52,9 +43,7 @@ const LoginForm = () => {
         <Col xs={12} sm={10} md={8} lg={6}>
           <Card className="border-0 shadow-lg">
             <Card.Body className="p-5">
-              <h2 className="text-center mb-4 font-weight-bold">
-                Welcome!
-              </h2>
+              <h2 className="text-center mb-4 font-weight-bold">Welcome!</h2>
               {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
               <Form onSubmit={handleLogin}>
                 <Form.Group className="mb-4" controlId="formBasicEmail">

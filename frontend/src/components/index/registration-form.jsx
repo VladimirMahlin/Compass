@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import validateForm from "../../validation";
 import { FaEnvelope, FaLock, FaUserLock } from "react-icons/fa";
+import { fetchData } from "../../utils/api";
 
 const RegistrationForm = () => {
   const navigate = useNavigate();
@@ -32,11 +33,8 @@ const RegistrationForm = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:3001/api/users/register", {
+      await fetchData("users/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           email,
           password,
@@ -44,20 +42,12 @@ const RegistrationForm = () => {
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(
-          data.error ||
-            data.message ||
-            "Registration failed. Please try again.",
-        );
-        return;
-      }
-
       navigate("/login");
     } catch (error) {
-      setError("An unexpected error occurred. Please try again later.");
+      setError(
+        error.message ||
+          "An unexpected error occurred. Please try again later.",
+      );
     }
   };
 

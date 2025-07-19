@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import LoadingSpinner from "../components/shared/Loading";
 import ErrorComponent from "../components/shared/Error";
+import { fetchData } from "../utils/api";
 
 function Book() {
   const { bookId } = useParams();
@@ -29,18 +30,10 @@ function Book() {
   useEffect(() => {
     const fetchBookData = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3001/api/books/${bookId}`,
-        );
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch book: ${response.status} ${response.statusText}`,
-          );
-        }
-        const data = await response.json();
+        const data = await fetchData(`books/${bookId}`);
         setBookData(data);
       } catch (error) {
-        console.error("Error fetching book:", error);
+        console.error("Error fetching book:", error.message);
         setError("Failed to fetch book data. Please try again later.");
       } finally {
         setLoading(false);
@@ -60,9 +53,8 @@ function Book() {
     return <ErrorComponent message={authError || error} />;
   }
 
-  const userHasReviewed = bookData.reviews.some(
-    (review) => review.user_id === user?.id,
-  );
+  const userHasReviewed =
+    bookData?.reviews?.some((review) => review.user_id === user?.id) || false;
 
   return (
     <Container>

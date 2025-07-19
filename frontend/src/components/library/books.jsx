@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import LoadingSpinner from "../shared/Loading";
 import ErrorComponent from "../shared/Error";
+import { fetchData } from "../../utils/api";
 
 function Books() {
   const [books, setBooks] = useState([]);
@@ -17,11 +18,7 @@ function Books() {
     const fetchBooks = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://localhost:3001/api/books/all");
-        if (!response.ok) {
-          throw new Error(`Failed to fetch books: ${response.statusText}`);
-        }
-        const data = await response.json();
+        const data = await fetchData("books/all");
         setBooks(data);
       } catch (error) {
         setError(error.message);
